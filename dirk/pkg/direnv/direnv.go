@@ -1,7 +1,6 @@
 package direnv
 
 import (
-	"log"
 	"os/exec"
 )
 
@@ -14,10 +13,14 @@ func Exists() bool {
 }
 
 // AllowPath grants direnv to load the .envrc in the given path/directory
-func AllowPath(p string) {
+func AllowPath(p string) error {
 	cmd := exec.Command("direnv", "allow", p)
 	err := cmd.Run()
 	if err != nil {
-		log.Fatalf("failed executing \"direnv allow\": %s\n", err)
+		return &DirenvAllowError{
+			Err: err,
+		}
 	}
+
+	return nil
 }

@@ -51,7 +51,14 @@ func (ef *File) Process() error {
 		}
 	}
 	fmt.Printf("dirk: direnv allow %s.\n", ef.Path)
-	ef.allow()
+	err := ef.allow()
+	if err != nil {
+		return &ProcessEnvrcError{
+			Err: &direnv.DirenvAllowError{
+				Err: err,
+			},
+		}
+	}
 
 	return nil
 }
@@ -158,6 +165,11 @@ func (ef *File) create() error {
 	return nil
 }
 
-func (ef *File) allow() {
-	direnv.AllowPath(ef.Path)
+func (ef *File) allow() error {
+	err := direnv.AllowPath(ef.Path)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
