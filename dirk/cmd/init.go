@@ -32,7 +32,7 @@ import (
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "init installs dirk in the directory passed as an argument",
+	Short: "init installs dirk in the desired directory",
 	Long: `init sets up an .envrc file in the directory passed as an argument 
 und refers a kubeconfig file.`,
 	Args: initArgs,
