@@ -30,7 +30,7 @@ var cfgFile string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "dirk",
-	Short: "A brief description of your application",
+	Short: "dirk exports KUBECONFIG via direnv",
 	Long: `A longer description that spans multiple lines and likely contains
 examples and usage of using your application. For example:
 
@@ -90,10 +90,11 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("Using config file:", viper.ConfigFileUsed())
+		fmt.Println("dirk: using config file:", viper.ConfigFileUsed())
 	}
 }
 
 func setDefaults() {
 	viper.SetDefault("mode", "skip")
+	viper.SetDefault("export", "export KUBECONFIG=\"$(pwd)/kubeconfig\"")
 }
