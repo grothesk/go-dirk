@@ -25,14 +25,16 @@ import (
 	"github.com/spf13/viper"
 
 	direnv "github.com/grothesk/go-dirk/dirk/pkg/direnv"
-	envrc "github.com/grothesk/go-dirk/dirk/pkg/file/envrc"
-	"github.com/grothesk/go-dirk/dirk/pkg/file/kubeconfig"
+	"github.com/grothesk/go-dirk/dirk/pkg/file/config"
+	"github.com/grothesk/go-dirk/dirk/pkg/file/config/kubeconfig"
+	"github.com/grothesk/go-dirk/dirk/pkg/file/rc"
+	envrc "github.com/grothesk/go-dirk/dirk/pkg/file/rc/envrc"
 )
 
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "init installs dirk in the desired directory",
+	Short: "init initializes dirk in the desired directory",
 	Long: `init sets up an .envrc file in the directory passed as an argument 
 und refers a kubeconfig file.`,
 	Args: initArgs,
@@ -80,24 +82,24 @@ func initArgs(cmd *cobra.Command, args []string) error {
 }
 
 func initRun(cmd *cobra.Command, args []string) {
-	directory, err := filepath.Abs(args[0])
+	dir, err := filepath.Abs(args[0])
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Printf("dirk: init dirk in %s.\n", directory)
+	fmt.Printf("dirk: init dirk in %s.\n", dir)
 
 	fmt.Println("dirk: check if direnv is present on PATH.")
 	if direnv.Exists() {
 		fmt.Println("dirk: direnv is on PATH.")
 
-		ef := envrc.NewFile(directory)
-		err = ef.Process()
+		ef := envrc.NewFile(dir)
+		err = rc.SetupFile(&ef)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		kf := kubeconfig.NewFile(directory)
-		err = kf.Process()
+		kf := kubeconfig.NewFile(dir)
+		err = config.SetupFile(&kf, viper.GetString("configfile"), viper.GetString("mode"))
 		if err != nil {
 			log.Fatal(err)
 		}

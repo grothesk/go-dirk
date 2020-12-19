@@ -3,6 +3,7 @@ package file
 import (
 	"bufio"
 	"fmt"
+	"io"
 	"os"
 )
 
@@ -12,6 +13,57 @@ func Exists(path string) bool {
 		return true
 	}
 	return false
+}
+
+// Create creates a file
+func Create(p string) error {
+	f, err := os.Create(p)
+	if err != nil {
+		return &CreateFileError{
+			Err: err,
+		}
+	}
+	defer f.Close()
+
+	return nil
+}
+
+// Replace replaces a file by another file
+func Replace(dst string, src string) error {
+	fs, err := os.Open(src)
+	if err != nil {
+		return &OpenFileError{
+			Err: err,
+		}
+	}
+	defer fs.Close()
+
+	fd, err := os.Create(dst)
+	if err != nil {
+		return &CreateFileError{
+			Err: err,
+		}
+	}
+	defer fd.Close()
+
+	_, err = io.Copy(fd, fs)
+	if err != nil {
+		return &CopyFileError{
+			Err: err,
+		}
+	}
+
+	return nil
+}
+
+// SetMode sets mode of a file
+func SetMode(p string, m os.FileMode) error {
+	if err := os.Chmod(p, m); err != nil {
+		return &ChmodError{
+			Err: err,
+		}
+	}
+	return nil
 }
 
 // ReadLines reads lines from a text file and returns an array containing the lines
