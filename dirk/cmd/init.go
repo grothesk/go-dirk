@@ -17,13 +17,13 @@ package cmd
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 
+	"github.com/grothesk/go-dirk/dirk/internal/logging"
 	direnv "github.com/grothesk/go-dirk/dirk/pkg/direnv"
 	"github.com/grothesk/go-dirk/dirk/pkg/file/config"
 	"github.com/grothesk/go-dirk/dirk/pkg/file/config/kubeconfig"
@@ -34,7 +34,7 @@ import (
 // initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
-	Short: "init initializes dirk in the desired directory",
+	Short: "Initializes dirk in the desired directory",
 	Long: `init sets up an .envrc file in the directory passed as an argument 
 und refers a kubeconfig file.`,
 	Args: initArgs,
@@ -47,12 +47,12 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	initCmd.Flags().StringP("configfile", "c", "", "Config file to copy to kubeconfig")
 	if err := viper.BindPFlag("configfile", initCmd.Flags().Lookup("configfile")); err != nil {
-		log.Fatal("Unable to bind flag: ", err)
+		logging.Logger.Fatal("Unable to bind flag: " + err.Error())
 	}
 
 	initCmd.Flags().StringP("mode", "m", "skip", "")
 	if err := viper.BindPFlag("mode", initCmd.Flags().Lookup("mode")); err != nil {
-		log.Fatal("Unable to bind flag: ", err)
+		logging.Logger.Fatal("Unable to bind flag: " + err.Error())
 	}
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
@@ -84,27 +84,29 @@ func initArgs(cmd *cobra.Command, args []string) error {
 func initRun(cmd *cobra.Command, args []string) {
 	dir, err := filepath.Abs(args[0])
 	if err != nil {
-		log.Fatal(err)
+		logging.Logger.Fatal(err.Error())
 	}
-	fmt.Printf("dirk: init dirk in %s.\n", dir)
+	logging.Logger.Info(fmt.Sprintf("init dirk in %s.", dir))
 
-	fmt.Println("dirk: check if direnv is present on PATH.")
+	logging.Logger.Info("check if direnv is present on PATH.")
 	if direnv.Exists() {
-		fmt.Println("dirk: direnv is on PATH.")
+		logging.Logger.Info("direnv is on PATH.")
 
 		ef := envrc.NewFile(dir)
 		err = rc.SetupFile(&ef)
 		if err != nil {
-			log.Fatal(err)
+			logging.Logger.Fatal(err.Error())
 		}
 
 		kf := kubeconfig.NewFile(dir)
-		err = config.SetupFile(&kf, viper.GetString("configfile"), viper.GetString("mode"))
+		configfile := viper.GetString("configfile")
+		mode := viper.GetString("mode")
+		err = config.SetupFile(&kf, configfile, mode)
 		if err != nil {
-			log.Fatal(err)
+			logging.Logger.Fatal(err.Error())
 		}
 	} else {
-		fmt.Println("dirk: cannot find direnv on PATH")
-		fmt.Println("dirk: please make sure that direnv has been installed.")
+		logging.Logger.Info("cannot find direnv on PATH")
+		logging.Logger.Info("please make sure that direnv has been installed.")
 	}
 }

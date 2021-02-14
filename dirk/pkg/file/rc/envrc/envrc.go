@@ -6,6 +6,7 @@ import (
 	"path"
 	"strings"
 
+	"github.com/grothesk/go-dirk/dirk/internal/logging"
 	"github.com/grothesk/go-dirk/dirk/pkg/direnv"
 	"github.com/grothesk/go-dirk/dirk/pkg/file"
 	"github.com/spf13/viper"
@@ -40,8 +41,10 @@ func (f *File) ReplaceOrAppendExport() error {
 	}
 
 	if count == 0 {
+		logging.Logger.Info("append export in " + f.Path)
 		return f.appendExport()
 	} else if count == 1 {
+		logging.Logger.Info("replace export in " + f.Path)
 		return f.replaceExport()
 	} else {
 		return &InvalidCountError{}
@@ -50,6 +53,7 @@ func (f *File) ReplaceOrAppendExport() error {
 
 // Create creates an .envrc file
 func (f *File) Create() error {
+	logging.Logger.Info("create " + f.Path)
 	fObj, err := os.Create(f.Path)
 	if err != nil {
 		return &file.CreateFileError{
@@ -70,6 +74,7 @@ func (f *File) Create() error {
 
 // Allow direnv allows the .envrc file
 func (f *File) Allow() error {
+	logging.Logger.Info("direnv allow " + f.Path)
 	return direnv.AllowPath(f.Path)
 }
 

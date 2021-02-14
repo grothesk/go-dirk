@@ -19,6 +19,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/grothesk/go-dirk/dirk/internal/logging"
 	"github.com/spf13/cobra"
 
 	homedir "github.com/mitchellh/go-homedir"
@@ -85,11 +86,12 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Println("dirk: using config file:", viper.ConfigFileUsed())
+		logging.Logger.Info("dirk: using config file: " + viper.ConfigFileUsed())
 	}
 }
 
 func setDefaults() {
 	viper.SetDefault("mode", "skip")
 	viper.SetDefault("export", "export KUBECONFIG=\"$(pwd)/kubeconfig\"")
+	viper.SetDefault("v", "error")
 }

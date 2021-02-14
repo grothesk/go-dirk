@@ -1,8 +1,11 @@
 package kubeconfig
 
 import (
+	"fmt"
+	"os"
 	"path"
 
+	"github.com/grothesk/go-dirk/dirk/internal/logging"
 	"github.com/grothesk/go-dirk/dirk/pkg/file"
 )
 
@@ -27,16 +30,18 @@ func (f *File) Exists() bool {
 
 // Skip does almost nothing
 func (f *File) Skip() {
-	// Do nothing or log something
+	logging.Logger.Info(fmt.Sprintf("skip overwriting %s", f.Path))
 }
 
 // ReplaceByEmptyfile replaces kubeconfig file by an empty file
 func (f *File) ReplaceByEmptyfile() error {
+	logging.Logger.Info(fmt.Sprintf("create %s as kubeconfig file", f.Path))
 	return f.Create()
 }
 
 // ReplaceByConfigfile writes a given config file to the file path of a kubeconfig file
 func (f *File) ReplaceByConfigfile(c string) error {
+	logging.Logger.Info(fmt.Sprintf("write %s to %s", c, f.Path))
 	return file.Replace(f.Path, c)
 }
 
@@ -47,5 +52,7 @@ func (f *File) Create() error {
 
 // SetMode sets mode of kubeconfig file to 600
 func (f *File) SetMode() error {
-	return file.SetMode(f.Path, 0600)
+	var m os.FileMode = 0600
+	logging.Logger.Info(fmt.Sprintf("set mode of %s to %#o", f.Path, m))
+	return file.SetMode(f.Path, m)
 }
